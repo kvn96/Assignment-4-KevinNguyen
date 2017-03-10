@@ -102,13 +102,15 @@ int pixMap_write_bmp16(pixMap *p,char *filename){
     b16 = (b16 & 0xF0); 
     //a16 = (a16 & 0xF0);
     //Do i have to initialize this as 0 in the beginning?
-    uint16_t temp16 = r16 | g16 | b16 | a16;
+    uint16_t temp16 = r16 | g16 | b16;
     //this flips it.
-    bmp16 -> pixArray_overlay[p->imageHeight -i -1][j]= temp16;
-`
+    //bmp16 -> pixArray_overlay[p->imageHeight -i -1][j]= temp16;
+    //Why does the bottom work over the top? I had to ask Dino to help me with this line.
+	bmp16->pixArray[bmp16->height - i - 1][j] = temp16;
+
     }
  }
- BMP16map_write(bmp16,filename)
+ BMP16map_write(bmp16,filename);
  BMP16map_destroy(&bmp16);
  return 0;
 }	 
@@ -144,13 +146,13 @@ plugin *plugin_parse(char *argv[] ,int *iptr){
    	*iptr=i+2;
    		return new;	
   }
-  if(!strcmp(argv[i]+2,"convolution")){{
+  if(!strcmp(argv[i]+2,"convolution")){
 				//code goes here
 	  new -> function = convolution;
       new -> data = malloc (9*sizeof(int));
-      float *kernel=(float*) new->data;
+      int *kernel=(int*) new->data;
       for(int j = 0; j < 9; j++) {
-        float newKernel = atoi(argv[i+j])
+        int newKernel = atoi(argv[i+j]);
         kernel[j] = newKernel;
       }
       *iptr=i+10;	
@@ -170,7 +172,8 @@ plugin *plugin_parse(char *argv[] ,int *iptr){
       return new;
 	}		
 	return(0);
-}	
+}
+
 
 static void rotate(pixMap *p, pixMap *oldPixMap,int i, int j,void *data){
  float *sc=(float*) data;
@@ -228,9 +231,9 @@ static void convolution(pixMap *p, pixMap *oldPixMap,int i, int j,void *data){
     	 }
          //Java version: red = red + p.getRed() * weight
     	 //accumulator = r, pixel value = pixArray.r? , element value = kernel[pixelValue]?
-         r = r + (oldPixMap-> pixArray_overlay[pixLocationI][pixLocationJ].r) * kernel[pixelValue]);
-         g = g + (oldPixMap-> pixArray_overlay[pixLocationI][pixLocationJ].r) * kernel[pixelValue]);
-         b = b + (oldPixMap-> pixArray_overlay[pixLOcationI][pixLocationJ].r) * kernel[pixelValue]);
+         r = r + (oldPixMap-> pixArray_overlay[pixLocationI][pixLocationJ].r) * kernel[pixelValue];
+         g = g + (oldPixMap-> pixArray_overlay[pixLocationI][pixLocationJ].r) * kernel[pixelValue];
+         b = b + (oldPixMap-> pixArray_overlay[pixLocationI][pixLocationJ].r) * kernel[pixelValue];
          pixelValue++;
 
 
@@ -269,9 +272,9 @@ static void convolution(pixMap *p, pixMap *oldPixMap,int i, int j,void *data){
    else if (g > 255) g = 255;
    //newPixels[y][x] = new Pixel(red, green, blue);
    //newPixels[y][x] = p->pixArrayOverlay[i][j].r, new Pixel(red) = r?
-   p->pixArrayOverlay[i][j].r =(char)r;
-   p->pixArrayOverlay[i][j].g =(char)g;
-   p->pixArrayOverlay[i][j].b =(char)b;
+   p->pixArray_overlay[i][j].r =(char)r;
+   p->pixArray_overlay[i][j].g =(char)g;
+   p->pixArray_overlay[i][j].b =(char)b;
 }
  
 //very simple functions - does not use the data pointer - good place to start
@@ -279,10 +282,10 @@ static void convolution(pixMap *p, pixMap *oldPixMap,int i, int j,void *data){
 static void flipVertical(pixMap *p, pixMap *oldPixMap,int i, int j,void *data){
  //The java implementation is imageArr[height - row - 1] i'm assuming this is the equivalent since
  //pixArray_overlay = imageArr and i = row?
- p->pixArray_overlay[ i][j] = oldPixMap -> pixArray_overlay[oldPixMap -> imageHeight - i - 1)][j];		
+ p->pixArray_overlay[i][j] = oldPixMap -> pixArray_overlay[oldPixMap -> imageHeight - i - 1][j];
 }	 
  static void flipHorizontal(pixMap *p, pixMap *oldPixMap,int i, int j,void *data){
   //reverse the pixels horizontally - can be done in one line
  //Same as the previous but involves the width instead.
-  p->p ixArray_overlay[i][j] = oldPixMap -> pixArray_overlay[i][oldPixMap -> imageWidth - j - 1)];		                                          
+  p->pixArray_overlay[i][j] = oldPixMap -> pixArray_overlay[i][oldPixMap -> imageWidth - j - 1];
 }      
