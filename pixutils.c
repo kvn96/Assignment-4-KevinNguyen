@@ -99,7 +99,7 @@ int pixMap_write_bmp16(pixMap *p,char *filename){
 
     r16 = (r16 & 0xF0) << 11;
     g16 = (g16 & 0xF0) << 5;
-    b16 = (b16 & 0xF0);
+    b16 = (b16 & 0xF0) >> 3;
     //a16 = (a16 & 0xF0);
     //Do i have to initialize this as 0 in the beginning?
     uint16_t temp16 = r16 | g16 | b16;
