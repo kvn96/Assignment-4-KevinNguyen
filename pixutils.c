@@ -83,28 +83,28 @@ int pixMap_write_bmp16(pixMap *p,char *filename){
 	
  //However pixMap and BMP16_map are "upside down" relative to each other
  //need to flip one of the the row indices when copying
- uint16_t temp16 = 0;
+ //uint16_t temp16 = 0;
  //Do a for loop through image height then width,
  for(int i = 0; i < p->imageHeight; i++) {
    for(int j = 0; j < p->imageWidth; j++) {
-    unint16_t r16 = p -> pixArray_overlay[i][j].r
-    unint16_t g16 = p -> pixArray_overlay[i][j].g
-    unit16_t b16 = p -> pixArray_overlay[i][j].b
+    uint16_t r16 = p -> pixArray_overlay[i][j].r
+    uint16_t g16 = p -> pixArray_overlay[i][j].g
+    uit16_t b16 = p -> pixArray_overlay[i][j].b
     //RRRRRrrr this pushes the lower case out.
     r16 = (r16 & 0xF0) >> 3;
     g16 = (g16 & 0xF0) >> 2;
     b16 = (b16 & 0xF0) >> 3;
-    a16 = (a16 & 0xF0); 
+    //a16 = (a16 & 0xF0);
     //Pushes the big R.
     
     r16 = (r16 & 0xF0) << 11;
     g16 = (g16 & 0xF0) << 5;
     b16 = (b16 & 0xF0); 
-    a16 = (a16 & 0xF0);
- 
-    temp16 = r16 | g16 | b16 | a16;
+    //a16 = (a16 & 0xF0);
+    //Do i have to initialize this as 0 in the beginning?
+    uint16_t temp16 = r16 | g16 | b16 | a16;
     //this flips it.
-    bmp16 -> pixArray_overlay[p->imageHeight -i -1][j]= temp;
+    bmp16 -> pixArray_overlay[p->imageHeight -i -1][j]= temp16;
 `
     }
  }
@@ -146,11 +146,11 @@ plugin *plugin_parse(char *argv[] ,int *iptr){
   }
   if(!strcmp(argv[i]+2,"convolution")){{
 				//code goes here
-		new -> function = convolution; 
+	  new -> function = convolution;
       new -> data = malloc (9*sizeof(int));
       float *kernel=(float*) new->data;
       for(int j = 0; j < 9; j++) {
-        float newKernel = atoi(agv[i+j])
+        float newKernel = atoi(argv[i+j])
         kernel[j] = newKernel;
       }
       *iptr=i+10;	
@@ -209,9 +209,9 @@ static void convolution(pixMap *p, pixMap *oldPixMap,int i, int j,void *data){
 	//The bottom for loops is to help remember why I used I and j
 	//    for(int y = 0; y < oldPixMap -> imageHeight - 1; y++) {
 	//       for(x = 0; x < oldPixMap -> imageWidth -1; x++) {
-	for(int y = 0; i - 1; y++) {
+	for(int y = i - 1; y < i + 1; y++) {
 	   int pixLocationI = y;
-       for(x = 0; j - 1; x++) {
+       for(int x = j - 1; x < j + 1; x++) {
     	  int pixLocationJ = x;
     	  /* Just like the normalize function you have to
     	   * check if the pixValues are beyond the range
@@ -220,17 +220,17 @@ static void convolution(pixMap *p, pixMap *oldPixMap,int i, int j,void *data){
     	 //bitmaps start like graphs, can't be negative.
     	 if(pixLocationI < 0) pixLocationI = 0;
     	 if(pixLocationJ < 0) pixLocationJ = 0;
-    	 if(pixLocationI > oldPixMap -> imageWidth -1) {
+    	 if(pixLocationI > (oldPixMap -> imageWidth -1)) {
     		 pixLocationI = oldPixMap -> imageWidth -1;
     	 }
-    	 if(pixLocationJ > oldPixMap -> imageHeight -1) {
+    	 if(pixLocationJ > (oldPixMap -> imageHeight -1)) {
     		 pixLocationJ = oldPixMap -> imageWidth -1;
     	 }
          //Java version: red = red + p.getRed() * weight
     	 //accumulator = r, pixel value = pixArray.r? , element value = kernel[pixelValue]?
-         r = r + (int)(oldPixMap-> pixArray_overlay[pixLocationI][pixLocationJ].r) * kernel[pixelValue]);
-         g = g + (int)(oldPixMap-> pixArray_overlay[pixLocationI][pixLocationJ].r) * kernel[pixelValue]);
-         b = b + (int)(oldPixMap-> pixArray_overlay[pixLOcationI][pixLocationJ].r) * kernel[pixelValue]);
+         r = r + (oldPixMap-> pixArray_overlay[pixLocationI][pixLocationJ].r) * kernel[pixelValue]);
+         g = g + (oldPixMap-> pixArray_overlay[pixLocationI][pixLocationJ].r) * kernel[pixelValue]);
+         b = b + (oldPixMap-> pixArray_overlay[pixLOcationI][pixLocationJ].r) * kernel[pixelValue]);
          pixelValue++;
 
 
@@ -261,12 +261,12 @@ static void convolution(pixMap *p, pixMap *oldPixMap,int i, int j,void *data){
        theScale = theScale + 1;
    }
 
-   if ( r < 0) r = 0;
-   if (r > 255) r = 255;
+   if (r < 0) r = 0;
+   else if (r > 255) r = 255;
    if (b < 0) b = 0;
-   if (b > 255) b = 255;
+   else if (b > 255) b = 255;
    if (g < 0) g = 0;
-   if (g > 255) g = 255;
+   else if (g > 255) g = 255;
    //newPixels[y][x] = new Pixel(red, green, blue);
    //newPixels[y][x] = p->pixArrayOverlay[i][j].r, new Pixel(red) = r?
    p->pixArrayOverlay[i][j].r =(char)r;
@@ -282,7 +282,7 @@ static void flipVertical(pixMap *p, pixMap *oldPixMap,int i, int j,void *data){
  p->pixArray_overlay[ i][j] = oldPixMap -> pixArray_overlay[oldPixMap -> imageHeight - i - 1)][j];		
 }	 
  static void flipHorizontal(pixMap *p, pixMap *oldPixMap,int i, int j,void *data){
-  / /reverse the pixels horizontally - can be done in one line
+  //reverse the pixels horizontally - can be done in one line
  //Same as the previous but involves the width instead.
   p->p ixArray_overlay[i][j] = oldPixMap -> pixArray_overlay[i][oldPixMap -> imageWidth - j - 1)];		                                          
 }      
