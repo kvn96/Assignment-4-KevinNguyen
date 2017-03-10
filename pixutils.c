@@ -119,7 +119,7 @@ void plugin_destroy(plugin **plug){
 	plugin *this_plug=*plug;
 	if(this_plug->function)
 	 free(this_plug->function);// 
-	if(this_plug->data)free(thim,ks_plug->data);	
+	if(this_plug->data)free(this_plug->data);
 	free(this_plug);
 	this_plug=0;
 }
