@@ -87,9 +87,9 @@ int pixMap_write_bmp16(pixMap *p,char *filename){
  //Do a for loop through image height then width,
  for(int i = 0; i < p->imageHeight; i++) {
    for(int j = 0; j < p->imageWidth; j++) {
-    uint16_t r16 = p -> pixArray_overlay[i][j].r
-    uint16_t g16 = p -> pixArray_overlay[i][j].g
-    uit16_t b16 = p -> pixArray_overlay[i][j].b
+    uint16_t r16 = p -> pixArray_overlay[i][j].r;
+    uint16_t g16 = p -> pixArray_overlay[i][j].g;
+    uint16_t b16 = p -> pixArray_overlay[i][j].b;
     //RRRRRrrr this pushes the lower case out.
     r16 = (r16 & 0xF0) >> 3;
     g16 = (g16 & 0xF0) >> 2;
