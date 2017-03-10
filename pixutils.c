@@ -95,11 +95,11 @@ int pixMap_write_bmp16(pixMap *p,char *filename){
     g16 = (g16 & 0xF0) >> 2;
     b16 = (b16 & 0xF0) >> 3;
     //a16 = (a16 & 0xF0);
-    //Pushes the big R.
 
+    //Pushing in the colors.
     r16 = (r16 & 0xF0) << 11;
     g16 = (g16 & 0xF0) << 5;
-    b16 = (b16 & 0xF0) >> 3;
+
     //a16 = (a16 & 0xF0);
     //Do i have to initialize this as 0 in the beginning?
     uint16_t temp16 = r16 | g16 | b16;
@@ -211,28 +211,28 @@ static void convolution(pixMap *p, pixMap *oldPixMap,int i, int j,void *data){
 	//The bottom for loops is to help remember why I used I and j
 	//    for(int y = 0; y < oldPixMap -> imageHeight - 1; y++) {
 	//       for(x = 0; x < oldPixMap -> imageWidth -1; x++) {
-	for(int y = i - 1; y < i + 1; y++) {
+	for(int y = i - 1; y <= i + 1; y++) {
 	   int pixLocationI = y;
-       for(int x = j - 1; x < j + 1; x++) {
+		 if(pixLocationI < 0) pixLocationI = 0;
+  	 if(pixLocationI > (oldPixMap -> imageHeight -1)) {
+  		 pixLocationI = oldPixMap -> imageHeight -1;
+  	 }
+       for(int x = j - 1; x <= j + 1; x++) {
     	  int pixLocationJ = x;
     	  /* Just like the normalize function you have to
     	   * check if the pixValues are beyond the range
     	   * except the ranges are the edge cases?
     	   */
     	 //bitmaps start like graphs, can't be negative.
-    	 if(pixLocationI < 0) pixLocationI = 0;
     	 if(pixLocationJ < 0) pixLocationJ = 0;
     	 if(pixLocationJ > (oldPixMap -> imageWidth -1)) {
     		 pixLocationJ = oldPixMap -> imageWidth -1;
     	 }
-    	 if(pixLocationI > (oldPixMap -> imageHeight -1)) {
-    		 pixLocationI = oldPixMap -> imageHeight -1;
-    	 }
          //Java version: red = red + p.getRed() * weight
     	 //accumulator = r, pixel value = pixArray.r? , element value = kernel[pixelValue]?
-         r = r + (int)(oldPixMap-> pixArray_overlay[pixLocationI][pixLocationJ].r) * kernel[pixelValue];
-         g = g + (int)(oldPixMap-> pixArray_overlay[pixLocationI][pixLocationJ].r) * kernel[pixelValue];
-         b = b + (int)(oldPixMap-> pixArray_overlay[pixLocationI][pixLocationJ].r) * kernel[pixelValue];
+         r = r + (oldPixMap-> pixArray_overlay[pixLocationI][pixLocationJ].r) * kernel[pixelValue];
+         g = g + (oldPixMap-> pixArray_overlay[pixLocationI][pixLocationJ].g) * kernel[pixelValue];
+         b = b + (oldPixMap-> pixArray_overlay[pixLocationI][pixLocationJ].b) * kernel[pixelValue];
          pixelValue++;
 
 
@@ -271,9 +271,9 @@ static void convolution(pixMap *p, pixMap *oldPixMap,int i, int j,void *data){
    else if (g > 255) g = 255;
    //newPixels[y][x] = new Pixel(red, green, blue);
    //newPixels[y][x] = p->pixArrayOverlay[i][j].r, new Pixel(red) = r?
-   p->pixArray_overlay[i][j].r =(char)r;
-   p->pixArray_overlay[i][j].g =(char)g;
-   p->pixArray_overlay[i][j].b =(char)b;
+   p->pixArray_overlay[i][j].r =r;
+   p->pixArray_overlay[i][j].g =g;
+   p->pixArray_overlay[i][j].b =b;
 }
 
 //very simple functions - does not use the data pointer - good place to start
